@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML Workflow Editor</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/jsplumb@2.15.0/dist/js/jsplumb.min.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="app">
+    <div class="toolbar">
+        <div class="file-info">
+            <span class="file-name">{{ diagramName }}</span>
+            <span :class="['save-status', {saved: isSaved}]">
+                {{ isSaved ? '✓ Сохранено' : '● Есть изменения' }}
+            </span>
+            <span v-if="saveIndicator" class="save-indicator">Сохранено!</span>
+        </div>
+
+        <div class="tools">
+            <button class="shape-btn process-btn" @click="addNode('process')" title="Процесс"></button>
+            <button class="shape-btn decision-btn" @click="addNode('decision')" title="Решение"></button>
+            <button class="shape-btn terminal-btn" @click="addNode('terminal')"
+                    :disabled="terminalCount >= 2"
+                    :title="terminalCount >= 2 ? 'Достигнут лимит терминальных узлов' : 'Терминатор'"></button>
+            <button @click="deleteSelectedNode" title="Удалить элемент">🗑️</button>
+            <button @click="saveDiagram" :disabled="isSaved" title="Сохранить">💾 Сохранить</button>
+        </div>
+    </div>
+    <div class="editor" ref="editor"></div>
+
+    <div v-if="showEditor" class="modal">
+        <div class="modal-content">
+            <h2>Редактирование узла</h2>
+
+            <div v-if="editingNode">
+                <div v-if="editingNode.id === '@START'">
+                    <h3>Начальный узел (диалог)</h3>
+
+                    <label>Таймаут сообщения (сек):
+                        <input type="number" v-model="editingDialog.message_timeout">
+                    </label>
+
+                    <h4>Команды:</h4>
+                    <div v-for="(command, index) in editingDialog.commands" :key="index">
+                        <label>Ответы (через запятую):
+                            <input type="text" v-model="command.answerStr">
+                        </label>
+                        <label>Переход к узлу:
+                            <select v-model="command.node_to">
+                                <option v-for="node in nodes" :value="node.id">{{ node.id }}</option>
+                            </select>
+                        </label>
+                        <button @click="removeCommand(index)">Удалить</button>
+                    </div>
+                    <button @click="addCommand">Добавить команду</button>
+                </div>
+
+                <div v-else-if="editingNode.type === 'terminal'">
+                    <h3>{{ editingNode.id === '@START' ? '@START' : '@END' }}</h3>
+                    <label>Текст:
+                        <input type="text" v-model="editingNode.text">
+                    </label>
+                    <div v-if="editingNode.id !== '@START'">
+                        <label>Успешное завершение:
+                            <input type="checkbox" v-model="editingNode.success_ending">
+                        </label>
+                    </div>
+                </div>
+
+                <div v-else-if="editingNode.type === 'process'">
+                    <h3>Процесс</h3>
+                    <label>ID узла:
+                        <input type="text" v-model="editingNode.id">
+                    </label>
+                    <label>Заголовок:
+                        <input type="text" v-model="editingNode.title">
+                    </label>
+                    <label>Текст:
+                        <textarea v-model="editingNode.text" class="rich-text-editor"></textarea>
+                    </label>
+                    <label>Таймаут сообщения (сек):
+                        <input type="number" v-model="editingNode.message_timeout">
+                    </label>
+                    <label>Тип контакта:
+                        <input type="text" v-model="editingNode.contact_type">
+                    </label>
+                    <label>Переход к узлу:
+                        <select v-model="editingNode.node_to">
+                            <option value="">-- Выберите узел --</option>
+                            <option v-for="node in availableTargetNodes(editingNode.id)" :value="node.id">{{ node.id }}</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div v-else-if="editingNode.type === 'decision'">
+                    <h3>Решение</h3>
+                    <label>ID узла:
+                        <input type="text" v-model="editingNode.id">
+                    </label>
+                    <label>Заголовок:
+                        <input type="text" v-model="editingNode.title">
+                    </label>
+                    <label>Текст:
+                        <textarea v-model="editingNode.text" class="rich-text-editor"></textarea>
+                    </label>
+                    <label>Таймаут сообщения (сек):
+                        <input type="number" v-model="editingNode.message_timeout">
+                    </label>
+                    <label>Тип контакта:
+                        <input type="text" v-model="editingNode.contact_type">
+                    </label>
+
+                    <h4>Опции:</h4>
+                    <div v-if="editingNode.options">
+                        <div v-for="(option, index) in editingNode.options" :key="index">
+                            <label>Ответы (через запятую):
+                                <input type="text" v-model="option.answerStr">
+                            </label>
+                            <label>Переход к узлу:
+                                <select v-model="option.node_to">
+                                    <option v-for="node in nodes" :value="node.id">{{ node.id }}</option>
+                                </select>
+                            </label>
+                            <button @click="removeOption(index)">Удалить</button>
+                        </div>
+                    </div>
+                    <button @click="addOption">Добавить опцию</button>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button @click="saveNodeChanges">Сохранить</button>
+                <button @click="closeEditor">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+---
+nodes:
+- id: "node-1748976587936"
+  type: "process"
+  text: ""
+  x: 148
+  "y": 148
+  width: 104
+  height: 64
+- id: "node-1748976588263"
+  type: "decision"
+  text: ""
+  x: -4
+  "y": 240
+  width: 1876
+  height: 1876
+- id: "node-1748976588549"
+  type: "terminal"
+  text: ""
+  x: 121
+  "y": 117
+  width: 104
+  height: 64
+- id: "node-1748976597341"
+  type: "decision"
+  text: ""
+  x: -117
+  "y": 512
+  width: 1876
+  height: 1876
+- id: "node-1748976600197"
+  type: "decision"
+  text: ""
+  x: -177
+  "y": 249
+  width: 1876
+  height: 1876
+connections: []

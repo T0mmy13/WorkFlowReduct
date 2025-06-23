@@ -1,0 +1,461 @@
+/* Добавим стили для ресайзеров ромбов */
+.decision .resizer {
+    background: #ff5555;
+    border: 2px solid white;
+    box-shadow: 0 0 2px rgba(0,0,0,0.8);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 20;
+}
+
+.decision:hover .resizer {
+    opacity: 1;
+}
+
+/* Позиционирование ресайзеров для ромбов */
+.decision .resizer-nw {
+    left: -8px;
+    top: 50%;
+    margin-top: -8px;
+    cursor: w-resize;
+}
+
+.decision .resizer-ne {
+    right: -8px;
+    top: 50%;
+    margin-top: -8px;
+    cursor: e-resize;
+}
+
+.decision .resizer-se {
+    right: 50%;
+    bottom: -8px;
+    margin-right: -8px;
+    cursor: s-resize;
+}
+
+.decision .resizer-sw {
+    left: 50%;
+    bottom: -8px;
+    margin-left: -8px;
+    cursor: n-resize;
+}
+
+/* Остальные стили остаются без изменений */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: #f0f0f0;
+    border-bottom: 1px solid #ccc;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 250px;
+}
+
+.file-name {
+    font-weight: bold;
+    padding: 6px 12px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.save-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: #ffebee;
+    color: #c62828;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.save-status::before {
+    content: "●";
+    font-size: 16px;
+}
+
+.save-status.saved {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.save-status.saved::before {
+    content: "✓";
+}
+
+.tools {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.shape-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #333;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.shape-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.shape-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.shape-btn:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.process-btn {
+    background: #aaffaa;
+    border-radius: 5px;
+}
+
+.decision-btn {
+    background: #ffaaaa;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.terminal-btn {
+    background: #aaaaff;
+    border-radius: 50%;
+}
+
+.editor {
+    width: 100vw;
+    height: calc(100vh - 52px);
+    background: #fff;
+    position: relative;
+    overflow: auto;
+    background-image: linear-gradient(#f0f0f0 1px, transparent 1px),
+                      linear-gradient(90deg, #f0f0f0 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.node {
+    position: absolute;
+    min-width: 100px;
+    min-height: 60px;
+    border: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: move;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transition: box-shadow 0.2s;
+    clip-path: none;
+    border-radius: 5px;
+}
+
+.node:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.process {
+    background: #aaffaa;
+    border-radius: 5px;
+}
+
+.decision {
+    background: #ffaaaa;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    transform: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    min-height: 120px;
+}
+
+.terminal {
+    background: #aaaaff;
+    border-radius: 50%;
+    min-width: 80px;
+    min-height: 80px;
+}
+
+.node-content {
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: text;
+    box-sizing: border-box;
+    overflow: hidden;
+    word-break: break-word;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    font-weight: bold;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+.node-content:focus {
+    user-select: text;
+    outline: 2px solid #2196F3;
+    background-color: #ffffcc;
+}
+
+.decision .node-content {
+    transform: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 10px !important;
+    box-sizing: border-box;
+    overflow: hidden;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    word-break: break-word;
+}
+
+.decision .node-content span {
+    transform: none !important;
+    display: block;
+    width: 100%;
+}
+
+.selected {
+    box-shadow: 0 0 0 3px #2196F3, 0 5px 15px rgba(33,150,243,0.3);
+    z-index: 10;
+}
+
+.resizer {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #2196F3;
+    z-index: 20;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    border: 2px solid white;
+    box-shadow: 0 0 2px rgba(0,0,0,0.8);
+}
+
+.node:hover .resizer {
+    opacity: 1;
+}
+
+.resizer-nw {
+    left: -8px;
+    top: -8px;
+    cursor: nwse-resize;
+}
+
+.resizer-ne {
+    right: -8px;
+    top: -8px;
+    cursor: nesw-resize;
+}
+
+.resizer-se {
+    right: -8px;
+    bottom: -8px;
+    cursor: nwse-resize;
+}
+
+.resizer-sw {
+    left: -8px;
+    bottom: -8px;
+    cursor: nesw-resize;
+}
+
+.jtk-endpoint {
+    display: block !important;
+    z-index: 10;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.node:hover .jtk-endpoint,
+.decision:hover .jtk-endpoint {
+    opacity: 1 !important;
+}
+
+.jtk-connector {
+    opacity: 1 !important;
+    z-index: 5;
+}
+
+.save-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transition: opacity 0.3s;
+    font-weight: 500;
+}
+
+button {
+    background: #2196F3;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+button:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    background: #90caf9;
+    cursor: not-allowed;
+    transform: none;
+}
+
+button[title] {
+    position: relative;
+}
+
+button[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal h2 {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.modal label {
+    display: block;
+    margin: 10px 0;
+}
+
+.modal input[type="text"],
+.modal input[type="number"],
+.modal textarea,
+.modal select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.modal textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-buttons button {
+    padding: 8px 15px;
+}
+
+.process .node-content,
+.decision .node-content {
+    font-size: 10px;
+    font-weight: bold;
+    padding: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.terminal .node-content {
+    font-size: 12px;
+    font-weight: normal;
+    padding: 5px !important;
+}
