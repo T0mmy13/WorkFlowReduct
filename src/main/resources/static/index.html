@@ -16,15 +16,12 @@
             <span :class="['save-status', {saved: isSaved}]">
                 {{ isSaved ? '✓ Сохранено' : '● Есть изменения' }}
             </span>
-            <span v-if="saveIndicator" class="save-indicator">Сохранено!</span>
         </div>
 
         <div class="tools">
             <button class="shape-btn process-btn" @click="addNode('process')" title="Процесс"></button>
             <button class="shape-btn decision-btn" @click="addNode('decision')" title="Решение"></button>
-            <button class="shape-btn terminal-btn" @click="addNode('terminal')"
-                    :disabled="terminalCount >= 2"
-                    :title="terminalCount >= 2 ? 'Достигнут лимит терминальных узлов' : 'Терминатор'"></button>
+            <button class="shape-btn terminal-btn" @click="addNode('terminal')" title="Терминатор"></button>
             <button @click="deleteSelectedNode" title="Удалить элемент">🗑️</button>
             <button @click="saveDiagram" :disabled="isSaved" title="Сохранить">💾 Сохранить</button>
         </div>

@@ -2,9 +2,14 @@
 nodes:
 - id: "@START"
   type: "terminal"
+  message_timeout: null
+  contact_type: null
+  title: null
   text: "Начало"
-  x: 543
-  "y": 52
+  options: null
+  success_ending: null
+  x: 351
+  "y": 5
   width: 54
   height: 43
   dialog:
@@ -18,14 +23,21 @@ nodes:
       - "Назначь"
       - "Оформи"
       node_to: "@start"
+  node_to: null
 - id: "@END"
   type: "terminal"
+  message_timeout: null
+  contact_type: null
+  title: null
   text: "Конец"
+  options: null
   success_ending: true
   x: 352
   "y": 735
   width: 61
   height: 59
+  dialog: null
+  node_to: null
 - id: "@start"
   type: "decision"
   message_timeout: 240
@@ -46,23 +58,31 @@ nodes:
     - "не согласен"
     - "неа"
     node_to: "@stop"
+  success_ending: null
   x: 338
   "y": 120
   width: 100
   height: 100
+  dialog: null
+  node_to: null
 - id: "@reg_contact_yes"
   type: "process"
+  message_timeout: null
   contact_type: "message"
   title: "Связаться с пациентом для записи на приём"
   text: "Для записи наберите номер телефона 111-11-11. Будем вас ждать. До свидани\
     я!"
+  options: null
+  success_ending: null
   x: 186
   "y": 461
   width: 79
   height: 30
+  dialog: null
   node_to: "@END"
 - id: "@stop"
   type: "decision"
+  message_timeout: null
   contact_type: "message"
   title: "Закончить переписку с сожалением"
   text: "Очень жаль :( Своевременное наблюдение поможет снизить риски развития заб\
@@ -79,29 +99,40 @@ nodes:
   - answer:
     - "Записаться"
     node_to: "@reg_contact_yes"
+  success_ending: null
   x: 471
   "y": 304
   width: 100
   height: 100
+  dialog: null
+  node_to: null
 - id: "@request_reason"
   type: "process"
+  message_timeout: null
   contact_type: "message"
   title: "Запросить причину"
   text: "По какой причине вы отказываетесь от явки?"
+  options: null
+  success_ending: null
   x: 467
   "y": 492
   width: 127
   height: 60
+  dialog: null
   node_to: "@take_reason"
 - id: "@take_reason"
   type: "process"
+  message_timeout: null
   contact_type: "message"
   title: "Принять причину"
   text: "Ваш ответ принят: %PREVIOUS_MSG%. Спасибо. До свидания!"
+  options: null
+  success_ending: null
   x: 480
   "y": 609
   width: 81
   height: 30
+  dialog: null
   node_to: "@END"
 connections:
 - sourceId: "@reg_contact_yes"
@@ -110,14 +141,6 @@ connections:
   targetAnchor: "Top"
 - sourceId: "@take_reason"
   targetId: "@END"
-  sourceAnchor: "Bottom"
-  targetAnchor: "Top"
-- sourceId: "@stop"
-  targetId: "@request_reason"
-  sourceAnchor: "Bottom"
-  targetAnchor: "Top"
-- sourceId: "@stop"
-  targetId: "@reg_contact_yes"
   sourceAnchor: "Bottom"
   targetAnchor: "Top"
 - sourceId: "@START"
@@ -134,5 +157,13 @@ connections:
   targetAnchor: "Top"
 - sourceId: "@request_reason"
   targetId: "@take_reason"
+  sourceAnchor: "Bottom"
+  targetAnchor: "Top"
+- sourceId: "@stop"
+  targetId: "@request_reason"
+  sourceAnchor: "Bottom"
+  targetAnchor: "Top"
+- sourceId: "@stop"
+  targetId: "@reg_contact_yes"
   sourceAnchor: "Bottom"
   targetAnchor: "Top"

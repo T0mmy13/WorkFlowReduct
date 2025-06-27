@@ -1,4 +1,4 @@
-const { createApp, ref, onMounted, reactive, watch, nextTick, computed } = Vue;
+const { createApp, ref, onMounted, reactive, watch, nextTick } = Vue;
 
 createApp({
     setup() {
@@ -10,7 +10,6 @@ createApp({
         const diagramName = ref("workflow.yml");
         const isSaved = ref(true);
         const diagramHash = ref("");
-        const saveIndicator = ref(false);
         const showEditor = ref(false);
         const editingNode = ref(null);
         const editingDialog = reactive({
@@ -20,10 +19,6 @@ createApp({
 
         const nodes = ref([]);
         const connections = ref([]);
-
-        const terminalCount = computed(() => {
-            return nodes.value.filter(n => n.type === 'terminal').length;
-        });
 
         watch(diagramHash, (newHash, oldHash) => {
             if (oldHash && newHash !== oldHash) {
@@ -226,56 +221,6 @@ createApp({
             jsPlumbInstance.repaintEverything();
         }
 
-        function adjustNodeSize(nodeElement, nodeData) {
-            const content = nodeElement.querySelector('.node-content');
-            if (!content) return;
-
-            const isTerminal = nodeData.type === 'terminal';
-            const text = content.textContent;
-            const styles = window.getComputedStyle(content);
-
-            const temp = document.createElement('div');
-            temp.style.position = 'absolute';
-            temp.style.visibility = 'hidden';
-            temp.style.whiteSpace = 'pre-wrap';
-            temp.style.wordBreak = 'break-word';
-            temp.style.font = styles.font;
-            temp.style.padding = styles.padding;
-            temp.style.boxSizing = 'border-box';
-            temp.style.width = 'auto';
-            temp.style.maxWidth = '500px';
-            temp.textContent = text;
-
-            document.body.appendChild(temp);
-
-            let newWidth = Math.max(
-                isTerminal ? 80 : 100,
-                temp.offsetWidth + 20
-            );
-            let newHeight = Math.max(
-                isTerminal ? 80 : 60,
-                temp.offsetHeight + 20
-            );
-
-            if (isTerminal) {
-                const size = Math.max(newWidth, newHeight);
-                newWidth = size;
-                newHeight = size;
-            }
-
-            document.body.removeChild(temp);
-
-            nodeElement.style.width = `${newWidth}px`;
-            nodeElement.style.height = `${newHeight}px`;
-            nodeData.width = newWidth;
-            nodeData.height = newHeight;
-
-            content.style.whiteSpace = 'pre-wrap';
-            content.style.wordBreak = 'break-word';
-
-            jsPlumbInstance.revalidate(nodeElement);
-        }
-
         function updateNodeVisual(nodeData) {
             const nodeElement = document.getElementById(nodeData.id);
             if (nodeElement) {
@@ -286,7 +231,6 @@ createApp({
                     } else {
                         content.textContent = nodeData.text || nodeData.id;
                     }
-                    adjustNodeSize(nodeElement, nodeData);
                 }
             }
         }
@@ -359,6 +303,8 @@ createApp({
                     newNodeData.dialog = {
                         message_timeout: 120,
                     };
+                } else {
+                    newNodeData.success_ending = false;
                 }
 
                 nodes.value.push(newNodeData);
@@ -386,7 +332,6 @@ createApp({
             node.style.left = '100px';
             node.style.top = '100px';
 
-            // Устанавливаем размеры для ромбов
             if (type === 'decision') {
                 node.style.width = '120px';
                 node.style.height = '120px';
@@ -407,7 +352,9 @@ createApp({
                 x: 100,
                 y: 100,
                 width: type === 'decision' ? 120 : 120,
-                height: type === 'decision' ? 120 : 80
+                height: type === 'decision' ? 120 : 80,
+                message_timeout: 120,
+                contact_type: "message"
             });
 
             nodes.value.push(newNodeData);
@@ -476,18 +423,16 @@ createApp({
                 let newTop = startTop;
 
                 if (isDecision) {
-                    // Для ромбов меняем только ширину (сохраняем квадратную форму)
                     switch(handle) {
                         case 'nw':
                         case 'ne':
                         case 'sw':
                         case 'se':
                             newWidth = Math.max(100, startWidth + dx);
-                            newHeight = newWidth; // Сохраняем пропорции ромба
+                            newHeight = newWidth;
                             break;
                     }
                 } else {
-                    // Для других узлов обычная логика
                     switch(handle) {
                         case 'nw':
                             newWidth = Math.max(50, startWidth - dx);
@@ -735,7 +680,6 @@ createApp({
                 const result = await response.json();
                 isSaved.value = true;
                 diagramHash.value = result.hash;
-                showSaveIndicator();
 
             } catch (error) {
                 console.error('Ошибка сохранения схемы:', error);
@@ -745,23 +689,14 @@ createApp({
             }
         }
 
-        function showSaveIndicator() {
-            saveIndicator.value = true;
-            setTimeout(() => {
-                saveIndicator.value = false;
-            }, 2000);
-        }
-
         return {
             editor,
             diagramName,
             isSaved,
-            saveIndicator,
             showEditor,
             editingNode,
             editingDialog,
             nodes,
-            terminalCount,
             addNode,
             saveDiagram,
             deleteSelectedNode,

@@ -1,4 +1,3 @@
-/* Добавим стили для ресайзеров ромбов */
 .decision .resizer {
     background: #ff5555;
     border: 2px solid white;
@@ -12,7 +11,6 @@
     opacity: 1;
 }
 
-/* Позиционирование ресайзеров для ромбов */
 .decision .resizer-nw {
     left: -8px;
     top: 50%;
@@ -41,7 +39,6 @@
     cursor: n-resize;
 }
 
-/* Остальные стили остаются без изменений */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -320,20 +317,6 @@ body {
     z-index: 5;
 }
 
-.save-indicator {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #4caf50;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    z-index: 1000;
-    transition: opacity 0.3s;
-    font-weight: 500;
-}
-
 button {
     background: #2196F3;
     color: white;
@@ -361,26 +344,6 @@ button:disabled {
     background: #90caf9;
     cursor: not-allowed;
     transform: none;
-}
-
-button[title] {
-    position: relative;
-}
-
-button[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: -35px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: nowrap;
-    z-index: 100;
-    pointer-events: none;
 }
 
 .modal {
@@ -452,10 +415,4 @@ button[title]:hover::after {
     padding: 5px;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.terminal .node-content {
-    font-size: 12px;
-    font-weight: normal;
-    padding: 5px !important;
 }

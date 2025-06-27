@@ -3,24 +3,13 @@ package com.example.demo.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.File
 import javax.annotation.PostConstruct
 import java.security.MessageDigest
-import com.fasterxml.jackson.annotation.JsonInclude
-import org.slf4j.LoggerFactory
 
 @Service
-class DiagramService(
-    @Value("\${diagram.file.path:classpath:scheme/}") private val diagramPath: String
-) {
-    private val logger = LoggerFactory.getLogger(DiagramService::class.java)
-    private val mapper = ObjectMapper(YAMLFactory()).apply {
-        registerKotlinModule()
-        setSerializationInclusion(JsonInclude.Include.NON_NULL)
-    }
-
+class DiagramService {
     private lateinit var diagramFile: File
     var lastSavedHash: String = ""
 
@@ -70,12 +59,7 @@ class DiagramService(
 
     @PostConstruct
     fun init() {
-        val basePath = if (diagramPath.startsWith("classpath:")) {
-            "src/main/resources/" + diagramPath.removePrefix("classpath:")
-        } else {
-            diagramPath
-        }
-
+        val basePath = "src/main/resources/scheme/"
         val dir = File(basePath)
         if (!dir.exists()) dir.mkdirs()
 
@@ -94,7 +78,7 @@ class DiagramService(
                     message_timeout = 120,
                     commands = listOf(
                         Command(
-                            answer = listOf("Запиши", "Запись", "Напомни", "Зарегистрируй", "Назначь", "Оформи"),
+                            answer = listOf(""),
                             node_to = ""
                         )
                     )
@@ -105,11 +89,11 @@ class DiagramService(
                 id = "@END",
                 type = "terminal",
                 text = "Конец",
+                success_ending = false,
                 x = 500,
                 y = 100,
                 width = 80,
-                height = 80,
-                success_ending = false
+                height = 80
             )
 
             saveDiagram(Diagram(
@@ -121,31 +105,29 @@ class DiagramService(
 
     fun loadDiagram(): Diagram {
         return try {
-            logger.info("Loading diagram from: ${diagramFile.absolutePath}")
             if (!diagramFile.exists() || diagramFile.length() == 0L) {
-                logger.warn("Diagram file is empty or does not exist")
                 return Diagram()
             }
-            val diagram = mapper.readValue(diagramFile, Diagram::class.java)
-            logger.info("Loaded diagram with ${diagram.nodes.size} nodes and ${diagram.connections.size} connections")
-            diagram
+            ObjectMapper(YAMLFactory()).apply {
+                registerKotlinModule()
+            }.readValue(diagramFile, Diagram::class.java)
         } catch (e: Exception) {
-            logger.error("Error loading diagram: ${e.message}")
             Diagram()
         }
     }
 
     fun saveDiagram(diagram: Diagram) {
         validateDiagram(diagram)
-        logger.info("Saving diagram with ${diagram.nodes.size} nodes and ${diagram.connections.size} connections")
         val validConnections = diagram.connections.filter { conn ->
             diagram.nodes.any { it.id == conn.sourceId } && diagram.nodes.any { it.id == conn.targetId }
         }
 
         val validDiagram = diagram.copy(connections = validConnections)
+        val mapper = ObjectMapper(YAMLFactory()).apply {
+            registerKotlinModule()
+        }
         mapper.writeValue(diagramFile, validDiagram)
         lastSavedHash = getContentHash(mapper.writeValueAsString(validDiagram))
-        logger.info("Diagram saved successfully. Hash: $lastSavedHash")
     }
 
     private fun validateDiagram(diagram: Diagram) {
@@ -154,7 +136,7 @@ class DiagramService(
             if (node.type !in listOf("process", "decision", "terminal")) {
                 throw IllegalArgumentException("Invalid node type: ${node.type}")
             }
-            if (node.type == "terminal" && node.id == "@begin" && node.dialog?.commands.isNullOrEmpty()) {
+            if (node.id == "@START" && node.dialog?.commands?.isEmpty() == true) {
                 throw IllegalArgumentException("Start node must have at least one command")
             }
         }
